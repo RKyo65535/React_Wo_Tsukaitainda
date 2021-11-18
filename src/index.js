@@ -1,3 +1,5 @@
+//index.jsがエントリーポイント、田き覚えた
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
