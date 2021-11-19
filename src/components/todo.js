@@ -4,15 +4,36 @@ export default function Todo(props) {
 
   //編集状態
   const [isEditing, setEditing] = useState(false);
+  //タスクの名前
+  const [newName, setNewName] = useState('');
+
+  //文字変わった時イベント
+  function handleChange(e) {
+    setNewName(e.target.value);
+  }
+
+  //決定イベント
+  function handleSubmit(e) {
+    e.preventDefault();
+    props.editTask(props.id, newName);
+    setNewName("");
+    setEditing(false);
+  }
 
   //編集状態と普通の状態で表示するリスト
   const editingTemplate = (
-    <form className="stack-small">
+    <form className="stack-small" onSubmit={handleSubmit}>
       <div className="form-group">
         <label className="todo-label" htmlFor={props.id}>
           New name for {props.titlename}
         </label>
-        <input id={props.id} className="todo-text" type="text" />
+        <input
+          id={props.id}
+          className="todo-text"
+          type="text"
+          value={newName}
+          onChange={handleChange}
+        />
       </div>
       <div className="btn-group">
         <button
