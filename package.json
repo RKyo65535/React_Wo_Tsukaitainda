@@ -1,7 +1,7 @@
 {
   "name": "moz-todo-react",
   "version": "1.0.0",
-  "homepage": ".",
+  "homepage": "https://rkyo65535.github.io/React_Wo_Tsukaitainda",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
