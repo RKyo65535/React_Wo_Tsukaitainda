@@ -1,102 +1,83 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import Todo from "./components/todo";
-import FilterButton from "./components/FilterButton";
+import { FilterButton } from "./components/FilterButton";
 import Form from "./components/Form";
+import { Task } from "./feature/task";
+import { FilterName } from "./feature/filter";
 
 import { nanoid } from "nanoid";
+import { usePrevious } from "./hooks/usePrevious";
 
 //こっちは再レンダリングされた際にリセットされない
 //すべてならば必ず真、そうでなければチェックボックスの状態によってかえるのだ。
-const FILTER_MAP = {
-  All: () => true,
-  Active: task => !task.completed,
-  Completed: task => task.completed
+const FILTER_MAP: { [K in FilterName]: (task: Task) => boolean } = {
+  ALL: () => true,
+  ACTIVE: (task) => !task.completed,
+  COMPLETED: (task) => task.completed,
 };
 
-const FILTER_NAMES = Object.keys(FILTER_MAP);
+// FILTER_MAP がこの値なのが確定なので
+const FILTER_NAMES = Object.keys(FILTER_MAP) as FilterName[];
 
-//以前の状態を取得する
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
+type Props = {
+  tasks: Task[];
+};
 
-
-function App(props) {
-
+function App(props: Props) {
   //現在の参照先
-  const listHeadingRef = useRef(null);
+  const listHeadingRef = useRef<HTMLHeadingElement>(null);
 
   //フィルターの状態
-  const [filter, setFilter] = useState('All');
-
-  function FilterButton(props) {
-    return (
-      <button
-        type="button"
-        className="btn toggle-btn"
-        aria-pressed={props.isPressed}
-        onClick={() => props.setFilter(props.name)}
-      >
-        <span className="visually-hidden">Show </span>
-        <span>{props.name}</span>
-        <span className="visually-hidden"> tasks</span>
-      </button>
-    );
-  }
+  const [filter, setFilter] = useState<FilterName>("ALL");
+  //task state
+  const [tasks, setTasks] = useState<Task[]>(props.tasks);
 
   //タスクのトグルが押されたときボタン
-  function toggleTaskCompleted(id) {
-    const updatedTasks = tasks.map(task => {
+  function toggleTaskCompleted(id: Task["id"]) {
+    const updatedTasks = tasks.map((task) => {
       // if this task has the same ID as the edited task
       if (id === task.id) {
         // use object spread to make a new object
         // whose `completed` prop has been inverted
-        return { ...task, completed: !task.completed }
+        return { ...task, completed: !task.completed };
       }
       return task;
     });
     setTasks(updatedTasks);
-    console.log(tasks[0])
+    console.log(tasks[0]);
   }
 
   //タスク削除ボタン
-  function deleteTask(id) {
+  function deleteTask(id: Task["id"]) {
     //自身以外をリストに残す形で、自信を滅する
-    const remainingTasks = tasks.filter(task => id !== task.id);
+    const remainingTasks = tasks.filter((task) => id !== task.id);
     setTasks(remainingTasks);
   }
 
   //タスク追加ボタン
-  function addTask(name) {
-    const newTask = { id: "id" + nanoid(), name: name, completed: false };
+  function addTask(name: Task["name"]) {
+    const newTask: Task = { id: "id" + nanoid(), name: name, completed: false };
     setTasks([...tasks, newTask]);
   }
 
   //タスク編集ボタン
-  function editTask(id, newName) {
-    const editedTaskList = tasks.map(task => {
+  function editTask(id: Task["id"], newName: string) {
+    const editedTaskList = tasks.map((task) => {
       // if this task has the same ID as the edited task
       if (id === task.id) {
         //
-        return { ...task, name: newName }
+        return { ...task, name: newName };
       }
       return task;
     });
     setTasks(editedTaskList);
   }
 
-  //ここで状態を保存する
-  const [tasks, setTasks] = useState(props.tasks);
-
   //上位存在からデータの一覧をtaskと言う名前で引っ張ってきた
   //フィルターに応じた者だけを表示するようにする
   const taskList = tasks
     .filter(FILTER_MAP[filter])
-    .map(task => (
+    .map((task) => (
       <Todo
         id={task.id}
         titlename={task.name}
@@ -109,7 +90,7 @@ function App(props) {
     ));
 
   //フィルターの一覧表示。
-  const filterList = FILTER_NAMES.map(name => (
+  const filterList = FILTER_NAMES.map((name) => (
     <FilterButton
       key={name}
       name={name}
@@ -118,9 +99,8 @@ function App(props) {
     />
   ));
 
-
   //タスクの数を数えて、適切な文字を出すのだ
-  const tasksNoun = taskList.length !== 1 ? 'tasks' : 'task';
+  const tasksNoun = taskList.length !== 1 ? "tasks" : "task";
   const headingText = `${taskList.length} ${tasksNoun} remaining`;
 
   //前状態のリストの長さをゲット
@@ -128,7 +108,7 @@ function App(props) {
 
   useEffect(() => {
     if (tasks.length - prevTaskLength === -1) {
-      listHeadingRef.current.focus();
+      listHeadingRef.current?.focus();
     }
   }, [tasks.length, prevTaskLength]);
 
@@ -136,10 +116,8 @@ function App(props) {
     <div className="todoapp stack-large">
       <h1>TodoMatic</h1>
       <Form addTask={addTask} />
-      <div className="filters btn-group stack-exception">
-        {filterList}
-      </div>
-      <h2 id="list-heading" tabIndex="-1" ref={listHeadingRef}>
+      <div className="filters btn-group stack-exception">{filterList}</div>
+      <h2 id="list-heading" tabIndex={-1} ref={listHeadingRef}>
         {headingText}
       </h2>
       <ul
@@ -147,14 +125,10 @@ function App(props) {
         className="todo-list stack-large stack-exception"
         aria-labelledby="list-heading"
       >
-
         {taskList}
-
       </ul>
     </div>
   );
 }
-
-
 
 export default App;

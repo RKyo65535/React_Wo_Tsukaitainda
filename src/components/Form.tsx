@@ -1,25 +1,28 @@
-import React, { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { Task } from "../feature/task";
 
+type Props = {
+  addTask: (taskname: string) => void;
+};
 
-function Form(props) {
+function Form(props: Props) {
   //状態を管理する？
-  const [name, setName] = useState('');
+  const [name, setName] = useState<Task["name"]>("");
 
-  function handleSubmit(e) {
+  function handleSubmit(event: FormEvent) {
     if (name === "") {
       alert("文字ぐらい入力してくれたっていいじゃない");
       return;
     }
-    e.preventDefault();
+    event.preventDefault();
     props.addTask(name);
     setName("");
   }
 
   // near the top of the `Form` component
-  function handleChange(e) {
-    setName(e.target.value);
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setName(event.target.value);
   }
-
 
   return (
     <form onSubmit={handleSubmit}>
@@ -37,10 +40,7 @@ function Form(props) {
         value={name}
         onChange={handleChange}
       />
-      <button
-        type="submit"
-        className="btn btn__primary btn__lg"
-      >
+      <button type="submit" className="btn btn__primary btn__lg">
         Add
       </button>
     </form>
@@ -48,4 +48,3 @@ function Form(props) {
 }
 
 export default Form;
-

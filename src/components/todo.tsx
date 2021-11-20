@@ -1,36 +1,41 @@
-import React, { useEffect, useRef, useState } from "react";
+import { type } from "os";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { usePrevious } from "../hooks/usePrevious";
 
-export default function Todo(props) {
+type Props = {
+  id: string;
+  titlename: string;
+  completed: boolean;
+  toggleTaskCompleted: (id: string) => void;
+  deleteTask: (id: string) => void;
+  editTask: (id: string, newname: string) => void;
+};
 
+export default function Todo(props: Props) {
   //編集状態
   const [isEditing, setEditing] = useState(false);
   //タスクの名前
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
 
   //選択状態
-  const editFieldRef = useRef(null);
-  const editButtonRef = useRef(null);
+  const editFieldRef = useRef<HTMLInputElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
 
   //前の状態が編集だったか否か
   const wasEditing = usePrevious(isEditing);
 
-  function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
-
   //文字変わった時イベント
-  function handleChange(e) {
-    setNewName(e.target.value);
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setNewName(event.target.value);
   }
 
   //決定イベント
-  function handleSubmit(e) {
-    e.preventDefault();
+  function handleSubmit(event: FormEvent) {
+    if (newName === "") {
+      alert("文字ぐらい入力してくれたっていいじゃない");
+      return;
+    }
+    event.preventDefault();
     props.editTask(props.id, newName);
     setNewName("");
     setEditing(false);
@@ -59,11 +64,13 @@ export default function Todo(props) {
           onClick={() => setEditing(false)}
         >
           Cancel
-          <span className="visually-hidden">renaming {props.name}</span>
+          <span className="visually-hidden">renaming {props.titlename}</span>
         </button>
         <button type="submit" className="btn btn__primary todo-edit">
           Save
-          <span className="visually-hidden">new name for {props.titlename}</span>
+          <span className="visually-hidden">
+            new name for {props.titlename}
+          </span>
         </button>
       </div>
     </form>
@@ -89,7 +96,7 @@ export default function Todo(props) {
           onClick={() => setEditing(true)}
           ref={editButtonRef}
         >
-          Edit <span className="visually-hidden">{props.name}</span>
+          Edit <span className="visually-hidden">{props.titlename}</span>
         </button>
         <button
           type="button"
@@ -105,10 +112,10 @@ export default function Todo(props) {
   //なにか起こったらこれが呼ばれそう(あとから？)
   useEffect(() => {
     if (!wasEditing && isEditing) {
-      editFieldRef.current.focus();
+      editFieldRef.current?.focus();
     }
     if (wasEditing && !isEditing) {
-      editButtonRef.current.focus();
+      editButtonRef.current?.focus();
     }
   }, [wasEditing, isEditing]);
 
