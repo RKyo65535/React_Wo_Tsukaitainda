@@ -5,6 +5,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { Task } from "./feature/task";
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 
 //最初のデーター
 
@@ -20,3 +21,5 @@ ReactDOM.render(
   </StrictMode>,
   document.getElementById("root")
 );
+
+serviceWorkerRegistration.unregister();
