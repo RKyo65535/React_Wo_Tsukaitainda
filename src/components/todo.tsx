@@ -32,12 +32,12 @@ export default function Todo(props: Props) {
   function handleSubmit(event: FormEvent) {
     if (newName === "") {
       alert("文字ぐらい入力してくれたっていいじゃない");
-      return;
+    } else {
+      event.preventDefault();
+      props.editTask(props.id, newName);
+      setNewName("");
+      setEditing(false);
     }
-    event.preventDefault();
-    props.editTask(props.id, newName);
-    setNewName("");
-    setEditing(false);
   }
 
   //編集状態と普通の状態で表示するリスト
