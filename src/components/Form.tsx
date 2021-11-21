@@ -10,11 +10,11 @@ function Form(props: Props) {
   const [name, setName] = useState<Task["name"]>("");
 
   function handleSubmit(event: FormEvent) {
+    event.preventDefault();
     if (name === "") {
       alert("文字ぐらい入力してくれたっていいじゃない");
       return;
     }
-    event.preventDefault();
     props.addTask(name);
     setName("");
   }
